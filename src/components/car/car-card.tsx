@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { CarCardProps } from '../component/props';
+import { CarCardProps } from '../props';
 
 export function CarCard({ car }: CarCardProps) {
   return (

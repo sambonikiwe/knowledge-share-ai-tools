@@ -1,5 +1,5 @@
 import { CarCard } from './car-card';
-import { FilterSection } from '../component/filters';
+import { FilterSection } from '../filters';
 import { getCars } from '@/lib/db';
 
 export function CarsList() {
