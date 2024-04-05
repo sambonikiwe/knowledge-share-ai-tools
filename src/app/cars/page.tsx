@@ -1,6 +1,6 @@
 import { CarsList } from '@/components/car/cars-list';
 
-export default function Home() {
+export default function Cars() {
   return (
     <CarsList/>
   );
