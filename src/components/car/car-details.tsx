@@ -3,59 +3,123 @@
  * @see https://v0.dev/t/N9MG8sO4kWW
  */
 
-'use client';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+"use client";
 
-import Image from 'next/image';
-import { JSX, SVGProps } from 'react';
-import { useParams } from 'next/navigation';
-import { getCarById } from '@/lib/db';
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
-export async function CarDetails() {
+import Image from "next/image";
+import { JSX, SVGProps, useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { createRental, getCarById } from "@/lib/db";
+
+type CarData = {
+  id: string;
+  name: string;
+  price: number;
+  summary: string;
+  overview: string;
+  imageUrl: string;
+  features: string[];
+};
+
+export function CarDetails() {
   const { id } = useParams<{ id: string }>();
+  const [carData, setCarData] = useState<CarData | null>(null);
 
-  const carData = getCarById(id);
+  useEffect(() => {
+    const fetchCarData = async () => {
+      const data = await getCarById(id);
+      setCarData(data);
+    };
+
+    fetchCarData();
+  }, [id]);
 
   if (!carData) {
-    return <div className='text-2xl font-bold text-center'>Car not found</div>;
+    ``;
+    return <div className="text-2xl font-bold text-center">Car not found</div>;
   }
+
+  function getCurrentUserId() {
+    // Logic to get the current user's ID
+    // This is just a placeholder and will likely need to be replaced with your actual logic
+    return 123;
+  }
+
+  const handleRentNow = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const rental = {
+      userId: getCurrentUserId(), // Replace this with your actual function to get the current user ID
+      carId: id,
+      pickup: new Date(
+        (
+          event.currentTarget.elements.namedItem("pickup") as HTMLInputElement
+        ).value
+      ),
+      dropoff: new Date(
+        (
+          event.currentTarget.elements.namedItem("dropoff") as HTMLInputElement
+        ).value
+      ),
+    };
+
+    await createRental(rental);
+
+    // Redirect to confirmation page
+    window.location.href = "/rental-confirmation";
+  };
 
   const { name, price, overview, features, imageUrl } = carData;
 
   return (
-    <div className='bg-gray-50/90 border-t border-gray-200 dark:border-gray-800'>
-      <div className='py-12'>
-        <div className='container grid gap-6 px-4 md:gap-12 lg:px-6 xl:grid-cols-2'>
-          <Image alt={name} className='aspect-video overflow-hidden rounded-xl object-cover object-center' height={310} src={imageUrl} width={550} />
-          <div className='flex flex-col justify-between space-x-4'>
-            <div className='grid gap-2'>
-              <h1 className='text-3xl font-bold tracking-tighter sm:text-5xl'>{name}</h1>
-              <p className='text-2xl font-bold tracking-tighter text-gray-500 md:text-3xl lg:text-4xl/relaxed xl:text-5xl/relaxed dark:text-gray-400'>R {price}/day</p>
+    <div className="bg-gray-50/90 border-t border-gray-200 dark:border-gray-800">
+      <div className="py-12">
+        <div className="container grid gap-6 px-4 md:gap-12 lg:px-6 xl:grid-cols-2">
+          <Image
+            alt={name}
+            className="aspect-video overflow-hidden rounded-xl object-cover object-center"
+            height={310}
+            src={imageUrl}
+            width={550}
+          />
+          <div className="flex flex-col justify-between space-x-4">
+            <div className="grid gap-2">
+              <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+                {name}
+              </h1>
+              <p className="text-2xl font-bold tracking-tighter text-gray-500 md:text-3xl lg:text-4xl/relaxed xl:text-5xl/relaxed dark:text-gray-400">
+                R {price}/day
+              </p>
             </div>
-            <div className='flex items-center justify-end space-x-4'>
-              <Button size='lg' variant='outline'>
-                <HeartIcon className='mr-2 h-4 w-4' />
+            <div className="flex items-center justify-end space-x-4">
+              <Button size="lg" variant="outline">
+                <HeartIcon className="mr-2 h-4 w-4" />
                 Add to Favorites
               </Button>
             </div>
           </div>
         </div>
       </div>
-      <section className='border-t border-b py-12'>
-        <div className='container grid items-start gap-6 px-4 md:gap-12 lg:grid-cols-2 lg:px-6'>
-          <div className='space-y-4'>
-            <div className='space-y-2'>
-              <h2 className='text-2xl font-bold tracking-tighter sm:text-3xl'>Overview</h2>
-              <p className='text-gray-500 dark:text-gray-400'>{overview}</p>
+      <section className="border-t border-b py-12">
+        <div className="container grid items-start gap-6 px-4 md:gap-12 lg:grid-cols-2 lg:px-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold tracking-tighter sm:text-3xl">
+                Overview
+              </h2>
+              <p className="text-gray-500 dark:text-gray-400">{overview}</p>
             </div>
-            <div className='space-y-2'>
-              <h2 className='text-2xl font-bold tracking-tighter sm:text-3xl'>Features</h2>
-              <ul className='grid gap-2'>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold tracking-tighter sm:text-3xl">
+                Features
+              </h2>
+              <ul className="grid gap-2">
                 {features.map((feature, index) => (
                   <li key={index}>
-                    <CheckIcon className='mr-2 inline-block h-4 w-4' />
+                    <CheckIcon className="mr-2 inline-block h-4 w-4" />
                     {feature}
                   </li>
                 ))}
@@ -64,41 +128,66 @@ export async function CarDetails() {
           </div>
         </div>
       </section>
-      <section className='py-12'>
-        <div className='container px-4 md:px-6'>
-          <form className='space-y-6'>
-            <div className='grid gap-2'>
-              <Label className='text-base' htmlFor='pickup'>
+      <section className="py-12">
+        <div className="container px-4 md:px-6">
+          <form className="space-y-6" onSubmit={handleRentNow}>
+            <div className="grid gap-2">
+              <Label className="text-base" htmlFor="pickup">
                 Pickup Date
               </Label>
-              <Input id='pickup' placeholder='Enter pickup date' required type='date' />
+              <Input
+                id="pickup"
+                placeholder="Enter pickup date"
+                required
+                type="date"
+              />
             </div>
-            <div className='grid gap-2'>
-              <Label className='text-base' htmlFor='dropoff'>
+            <div className="grid gap-2">
+              <Label className="text-base" htmlFor="dropoff">
                 Drop-off Date
               </Label>
-              <Input id='dropoff' placeholder='Enter drop-off date' required type='date' />
+              <Input
+                id="dropoff"
+                placeholder="Enter drop-off date"
+                required
+                type="date"
+              />
             </div>
-            <div className='grid gap-2'>
-              <Label className='text-base' htmlFor='name'>
+            <div className="grid gap-2">
+              <Label className="text-base" htmlFor="name">
                 Full Name
               </Label>
-              <Input id='name' placeholder='Enter your full name' required type='text' />
+              <Input
+                id="name"
+                placeholder="Enter your full name"
+                required
+                type="text"
+              />
             </div>
-            <div className='grid gap-2'>
-              <Label className='text-base' htmlFor='email'>
+            <div className="grid gap-2">
+              <Label className="text-base" htmlFor="email">
                 Email
               </Label>
-              <Input id='email' placeholder='Enter your email' required type='email' />
+              <Input
+                id="email"
+                placeholder="Enter your email"
+                required
+                type="email"
+              />
             </div>
-            <div className='grid gap-2'>
-              <Label className='text-base' htmlFor='phone'>
+            <div className="grid gap-2">
+              <Label className="text-base" htmlFor="phone">
                 Phone Number
               </Label>
-              <Input id='phone' placeholder='Enter your phone number' required type='tel' />
+              <Input
+                id="phone"
+                placeholder="Enter your phone number"
+                required
+                type="tel"
+              />
             </div>
-            <div className='flex justify-end'>
-              <Button className='px-12' type='submit'>
+            <div className="flex justify-end">
+              <Button className="px-12" type="submit">
                 Rent Now
               </Button>
             </div>
@@ -113,17 +202,17 @@ function HeartIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
-      xmlns='http://www.w3.org/2000/svg'
-      width='24'
-      height='24'
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='2'
-      strokeLinecap='round'
-      strokeLinejoin='round'
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      <path d='M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z' />
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
     </svg>
   );
 }
@@ -132,17 +221,17 @@ function CheckIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
-      xmlns='http://www.w3.org/2000/svg'
-      width='24'
-      height='24'
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='2'
-      strokeLinecap='round'
-      strokeLinejoin='round'
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      <polyline points='20 6 9 17 4 12' />
+      <polyline points="20 6 9 17 4 12" />
     </svg>
   );
 }
