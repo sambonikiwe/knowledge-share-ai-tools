@@ -12,13 +12,11 @@ export async function Landing() {
   const model = "all";
   const year = "all";
 
-  const cars = (
+
     await getCars({
-      priceRange: "[0, 1000]",
       model,
       year,
     })
-  ).slice(0, 3);
 
   return (
     <div className="flex flex-col min-h-[100dvh]">
