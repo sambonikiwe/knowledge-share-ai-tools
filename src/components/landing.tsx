@@ -14,7 +14,7 @@ export async function Landing() {
 
   const cars = (
     await getCars({
-      priceRange: 1,
+      priceRange: "[0, 100]",
       model,
       year,
     })
