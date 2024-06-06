@@ -8,7 +8,17 @@ import { getCars } from "@/lib/db";
 import { CarCard } from "./car/car-card";
 
 export async function Landing() {
-  const cars = (await getCars()).slice(0, 3);
+  const priceRange = [0, 1000000];
+  const model = "all";
+  const year = "all";
+
+  const cars = (
+    await getCars({
+      priceRange: "[0, 100]",
+      model,
+      year,
+    })
+  ).slice(0, 3);
 
   return (
     <div className="flex flex-col min-h-[100dvh]">
